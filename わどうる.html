@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ワードウルフ進行画面</title>
+  <style>
+    :root {
+      --blue: #1e63ff;
+      --blue-dark: #174dcc;
+      --bg: #f5f7fb;
+      --text: #1f2937;
+      --card: #ffffff;
+      --border: #d9e0ee;
+      --danger: #e11d48;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .app {
+      width: min(920px, 100%);
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+      padding: 28px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      text-align: center;
+      font-size: clamp(28px, 4vw, 40px);
+    }
+
+    .setup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .field {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      background: #fbfcff;
+    }
+
+    .field label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+
+    .field select {
+      width: 100%;
+      padding: 12px 14px;
+      font-size: 18px;
+      border-radius: 12px;
+      border: 1px solid #c9d3e6;
+      background: white;
+    }
+
+    .theme-box {
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+      margin-bottom: 24px;
+      background: #fbfcff;
+    }
+
+    .theme-box h2 {
+      margin: 0 0 12px;
+      font-size: 20px;
+    }
+
+    .theme-preview {
+      font-size: 18px;
+      line-height: 1.8;
+      background: white;
+      border: 1px dashed #cbd5e1;
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+
+    .bottom-bar {
+      display: flex;
+      justify-content: center;
+      margin-top: 18px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 18px;
+      padding: 16px 28px;
+      font-size: 24px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 0.15s ease, opacity 0.15s ease, background 0.15s ease;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: var(--blue);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: var(--blue-dark);
+    }
+
+    .btn-sub {
+      background: #eef3ff;
+      color: var(--blue-dark);
+      margin-top: 24px;
+    }
+
+    .btn-sub:hover {
+      background: #dfe8ff;
+    }
+
+    .btn-large {
+      width: min(620px, 100%);
+      min-height: 120px;
+      font-size: clamp(30px, 5vw, 48px);
+      border-radius: 28px;
+      background: var(--blue);
+      color: white;
+      display: block;
+      margin: 24px auto 0;
+      box-shadow: 0 14px 30px rgba(30, 99, 255, 0.25);
+    }
+
+    .screen {
+      min-height: 540px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .center-box {
+      text-align: center;
+    }
+
+    .info {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      color: #4b5563;
+      margin-bottom: 18px;
+    }
+
+    .word-card {
+      margin: 0 auto;
+      width: min(680px, 100%);
+      border-radius: 28px;
+      background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+      border: 2px solid #d6e1ff;
+      padding: 32px 24px;
+      box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+      text-align: center;
+    }
+
+    .role-label {
+      font-size: 20px;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+
+    .word {
+      font-size: clamp(42px, 7vw, 72px);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      margin-bottom: 10px;
+    }
+
+    .sub-word {
+      font-size: 20px;
+      color: #64748b;
+    }
+
+    .final-text {
+      font-size: clamp(46px, 8vw, 84px);
+      font-weight: 900;
+      text-align: center;
+      color: var(--danger);
+      letter-spacing: 0.06em;
+      animation: popIn 0.45s ease;
+    }
+
+    .final-sub {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 24px;
+      color: #475569;
+    }
+
+    .restart {
+      display: flex;
+      justify-content: center;
+      margin-top: 28px;
+    }
+
+    @keyframes popIn {
+      0% {
+        transform: scale(0.8);
+        opacity: 0;
+      }
+      100% {
+        transform: scale(1);
+        opacity: 1;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .app {
+        padding: 18px;
+      }
+
+      .screen {
+        min-height: 70vh;
+      }
+
+      .btn {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <section id="setupScreen" class="screen">
+      <h1>ワードウルフ進行画面</h1>
+
+      <div class="setup-grid">
+        <div class="field">
+          <label for="playerCount">プレイ人数</label>
+          <select id="playerCount"></select>
+        </div>
+
+        <div class="field">
+          <label for="wolfCount">ウルフの数</label>
+          <select id="wolfCount"></select>
+        </div>
+
+        <div class="field">
+          <label for="themeNumber">お題番号（1〜10）</label>
+          <select id="themeNumber"></select>
+        </div>
+      </div>
+
+      <div class="theme-box">
+        <h2>お題プレビュー</h2>
+        <div class="theme-preview" id="themePreview"></div>
+      </div>
+
+      <div class="bottom-bar">
+        <button class="btn btn-primary" id="startBtn">スタート</button>
+      </div>
+    </section>
+
+    <section id="turnScreen" class="screen hidden">
+      <div class="center-box">
+        <div class="info" id="progressText"></div>
+        <button class="btn btn-large" id="revealBtn"></button>
+      </div>
+    </section>
+
+    <section id="wordScreen" class="screen hidden">
+      <div class="center-box">
+        <div class="info" id="wordPlayerText"></div>
+        <div class="word-card">
+          <div class="role-label" id="roleLabel"></div>
+          <div class="word" id="wordText"></div>
+          <div class="sub-word" id="wordSubText"></div>
+        </div>
+        <button class="btn btn-sub" id="doneBtn">見終わりました</button>
+      </div>
+    </section>
+
+    <section id="finalScreen" class="screen hidden">
+      <div class="final-text">議論開始！</div>
+      <div class="final-sub" id="finalSummary"></div>
+      <div class="restart">
+        <button class="btn btn-primary" id="restartBtn">最初に戻る</button>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const themes = {
+      1: { citizen: "たこ", wolf: "いか" },
+      2: { citizen: "うし", wolf: "バッファロー" },
+      3: { citizen: "ねこ", wolf: "とら" },
+      4: { citizen: "コーヒー", wolf: "紅茶" },
+      5: { citizen: "春", wolf: "秋" },
+      6: { citizen: "映画", wolf: "ドラマ" },
+      7: { citizen: "海", wolf: "プール" },
+      8: { citizen: "電車", wolf: "バス" },
+      9: { citizen: "ケーキ", wolf: "プリン" },
+      10: { citizen: "犬", wolf: "狼" }
+    };
+
+    const playerCountEl = document.getElementById("playerCount");
+    const wolfCountEl = document.getElementById("wolfCount");
+    const themeNumberEl = document.getElementById("themeNumber");
+    const themePreviewEl = document.getElementById("themePreview");
+
+    const setupScreen = document.getElementById("setupScreen");
+    const turnScreen = document.getElementById("turnScreen");
+    const wordScreen = document.getElementById("wordScreen");
+    const finalScreen = document.getElementById("finalScreen");
+
+    const startBtn = document.getElementById("startBtn");
+    const revealBtn = document.getElementById("revealBtn");
+    const doneBtn = document.getElementById("doneBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    const progressText = document.getElementById("progressText");
+    const wordPlayerText = document.getElementById("wordPlayerText");
+    const roleLabel = document.getElementById("roleLabel");
+    const wordText = document.getElementById("wordText");
+    const wordSubText = document.getElementById("wordSubText");
+    const finalSummary = document.getElementById("finalSummary");
+
+    const state = {
+      playerCount: 4,
+      wolfCount: 1,
+      themeNumber: 1,
+      roles: [],
+      currentPlayerIndex: 0
+    };
+
+    function fillSelect(select, start, end, selectedValue) {
+      select.innerHTML = "";
+      for (let i = start; i <= end; i++) {
+        const option = document.createElement("option");
+        option.value = String(i);
+        option.textContent = String(i);
+        if (i === selectedValue) option.selected = true;
+        select.appendChild(option);
+      }
+    }
+
+    function initSelectors() {
+      fillSelect(playerCountEl, 3, 12, 4);
+      fillSelect(wolfCountEl, 1, 3, 1);
+      fillSelect(themeNumberEl, 1, 10, 1);
+      updateWolfOptions();
+      updateThemePreview();
+    }
+
+    function updateWolfOptions() {
+      const players = Number(playerCountEl.value);
+      const currentWolf = Math.min(Number(wolfCountEl.value), Math.max(1, players - 1));
+      fillSelect(wolfCountEl, 1, Math.max(1, players - 1), currentWolf);
+    }
+
+    function updateThemePreview() {
+      const themeNo = Number(themeNumberEl.value);
+      const theme = themes[themeNo];
+      themePreviewEl.innerHTML = `
+        市民：<strong>${theme.citizen}</strong><br>
+        ウルフ：<strong>${theme.wolf}</strong>
+      `;
+    }
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function createRoles(playerCount, wolfCount) {
+      const roles = [];
+      for (let i = 0; i < wolfCount; i++) roles.push("wolf");
+      for (let i = 0; i < playerCount - wolfCount; i++) roles.push("citizen");
+      return shuffle(roles);
+    }
+
+    function showScreen(screen) {
+      [setupScreen, turnScreen, wordScreen, finalScreen].forEach(el => el.classList.add("hidden"));
+      screen.classList.remove("hidden");
+    }
+
+    function startGame() {
+      state.playerCount = Number(playerCountEl.value);
+      state.wolfCount = Number(wolfCountEl.value);
+      state.themeNumber = Number(themeNumberEl.value);
+      state.roles = createRoles(state.playerCount, state.wolfCount);
+      state.currentPlayerIndex = 0;
+      updateTurnButton();
+      showScreen(turnScreen);
+    }
+
+    function updateTurnButton() {
+      const playerNumber = state.currentPlayerIndex + 1;
+      progressText.textContent = `${playerNumber} / ${state.playerCount}`;
+      revealBtn.textContent = `${playerNumber}人目ですか。`;
+    }
+
+    function revealWord() {
+      const theme = themes[state.themeNumber];
+      const role = state.roles[state.currentPlayerIndex];
+      const isWolf = role === "wolf";
+
+      wordPlayerText.textContent = `${state.currentPlayerIndex + 1}人目のお題`;
+      roleLabel.textContent = isWolf ? "あなたはウルフです" : "あなたは市民です";
+      wordText.textContent = isWolf ? theme.wolf : theme.citizen;
+      wordSubText.textContent = `お題番号 ${state.themeNumber}`;
+
+      showScreen(wordScreen);
+    }
+
+    function nextPlayer() {
+      state.currentPlayerIndex += 1;
+
+      if (state.currentPlayerIndex >= state.playerCount) {
+        finalSummary.textContent = `全員がお題を確認しました。${state.playerCount}人で話し合ってください。`;
+        showScreen(finalScreen);
+        return;
+      }
+
+      updateTurnButton();
+      showScreen(turnScreen);
+    }
+
+    function resetGame() {
+      state.roles = [];
+      state.currentPlayerIndex = 0;
+      showScreen(setupScreen);
+    }
+
+    playerCountEl.addEventListener("change", updateWolfOptions);
+    themeNumberEl.addEventListener("change", updateThemePreview);
+    startBtn.addEventListener("click", startGame);
+    revealBtn.addEventListener("click", revealWord);
+    doneBtn.addEventListener("click", nextPlayer);
+    restartBtn.addEventListener("click", resetGame);
+
+    initSelectors();
+  </script>
+</body>
+</html>
