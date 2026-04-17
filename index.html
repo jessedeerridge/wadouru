@@ -188,7 +188,8 @@
 
     .word-card,
     .result-card,
-    .confirm-card {
+    .confirm-card,
+    .announce-card {
       margin: 0 auto;
       width: min(760px, 100%);
       border-radius: 28px;
@@ -238,20 +239,24 @@
       margin-bottom: 24px;
     }
 
+    .announce-main,
+    .result-main {
+      font-size: clamp(34px, 6vw, 58px);
+      font-weight: 900;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .result-main {
+      margin-bottom: 18px;
+    }
+
     .player-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
       gap: 14px;
       width: min(800px, 100%);
       margin: 0 auto;
-    }
-
-    .result-main {
-      font-size: clamp(34px, 6vw, 58px);
-      font-weight: 900;
-      line-height: 1.5;
-      margin-bottom: 18px;
-      white-space: pre-line;
     }
 
     .result-sub {
@@ -268,6 +273,11 @@
       font-size: 22px;
       line-height: 2;
       white-space: pre-line;
+    }
+
+    .wolf-word {
+      color: #1e63ff;
+      font-weight: 900;
     }
 
     .lock-overlay {
@@ -404,16 +414,20 @@
       </div>
     </section>
 
+    <section id="announceScreen" class="screen hidden">
+      <div class="announce-card">
+        <div class="announce-main" id="announceMain"></div>
+        <div class="center-row">
+          <button class="btn btn-primary" id="announceNextBtn">次へ</button>
+        </div>
+      </div>
+    </section>
+
     <section id="resultScreen" class="screen hidden">
       <div class="result-card">
-        <div class="result-title">結果</div>
+        <div class="result-title" id="resultTitle">結果</div>
         <div class="result-main" id="resultMain"></div>
         <div class="result-sub" id="resultSub"></div>
-
-        <div class="center-row hidden" id="showAnswerRow">
-          <button class="btn btn-primary" id="showAnswerBtn">正解を見る</button>
-        </div>
-
         <div class="answers-box hidden" id="answersBox"></div>
 
         <div class="restart hidden" id="retryRow">
@@ -448,6 +462,7 @@
     const discussionScreen = document.getElementById("discussionScreen");
     const voteScreen = document.getElementById("voteScreen");
     const confirmScreen = document.getElementById("confirmScreen");
+    const announceScreen = document.getElementById("announceScreen");
     const resultScreen = document.getElementById("resultScreen");
 
     const startBtn = document.getElementById("startBtn");
@@ -456,17 +471,18 @@
     const endDiscussionBtn = document.getElementById("endDiscussionBtn");
     const confirmYesBtn = document.getElementById("confirmYesBtn");
     const confirmNoBtn = document.getElementById("confirmNoBtn");
-    const showAnswerBtn = document.getElementById("showAnswerBtn");
+    const announceNextBtn = document.getElementById("announceNextBtn");
     const retryBtn = document.getElementById("retryBtn");
 
     const wordText = document.getElementById("wordText");
     const timerText = document.getElementById("timerText");
     const voteButtons = document.getElementById("voteButtons");
     const confirmTitle = document.getElementById("confirmTitle");
+    const announceMain = document.getElementById("announceMain");
+    const resultTitle = document.getElementById("resultTitle");
     const resultMain = document.getElementById("resultMain");
     const resultSub = document.getElementById("resultSub");
     const answersBox = document.getElementById("answersBox");
-    const showAnswerRow = document.getElementById("showAnswerRow");
     const retryRow = document.getElementById("retryRow");
     const alarmAudio = document.getElementById("alarmAudio");
     const lockOverlay = document.getElementById("lockOverlay");
@@ -549,6 +565,7 @@
         discussionScreen,
         voteScreen,
         confirmScreen,
+        announceScreen,
         resultScreen
       ].forEach(el => el.classList.add("hidden"));
       screen.classList.remove("hidden");
@@ -648,10 +665,11 @@
 
       answersBox.classList.add("hidden");
       retryRow.classList.add("hidden");
-      showAnswerRow.classList.add("hidden");
       answersBox.innerHTML = "";
       resultMain.textContent = "";
       resultSub.textContent = "";
+      announceMain.textContent = "";
+      resultTitle.textContent = "結果";
 
       updateTurnButton();
       showScreen(turnScreen);
@@ -665,8 +683,7 @@
     function revealWord() {
       const theme = themes[state.themeNumber];
       const role = state.roles[state.currentPlayerIndex];
-      const isWolf = role === "wolf";
-      wordText.textContent = isWolf ? theme.wolf : theme.citizen;
+      wordText.textContent = role === "wolf" ? theme.wolf : theme.citizen;
       showScreen(wordScreen);
       lockScreenWithCount(doneBtn, "done");
     }
@@ -729,15 +746,30 @@
       }
     }
 
-    function buildAnswerLines() {
+    function buildAnswerHtml() {
       const theme = themes[state.themeNumber];
       const lines = [];
+
       for (let i = 0; i < state.playerCount; i++) {
         const role = state.roles[i];
-        const word = role === "wolf" ? theme.wolf : theme.citizen;
+        const word = role === "wolf"
+          ? `<span class="wolf-word">${theme.wolf}</span>`
+          : theme.citizen;
+
         lines.push(`${i + 1}人目：${word}`);
       }
-      return lines.join("\n");
+
+      return lines.join("<br>");
+    }
+
+    function showWolfAnswersScreen() {
+      resultTitle.textContent = "結果";
+      resultMain.textContent = "";
+      resultSub.textContent = "";
+      answersBox.innerHTML = buildAnswerHtml();
+      answersBox.classList.remove("hidden");
+      retryRow.classList.remove("hidden");
+      showScreen(resultScreen);
     }
 
     function showResult() {
@@ -746,27 +778,20 @@
 
       answersBox.classList.add("hidden");
       retryRow.classList.add("hidden");
-      showAnswerRow.classList.add("hidden");
-      answersBox.textContent = "";
+      answersBox.innerHTML = "";
 
       if (!isWolf) {
+        resultTitle.textContent = "結果";
         resultMain.textContent = "市民の負け～";
-        resultSub.textContent = buildAnswerLines();
-        retryRow.classList.remove("hidden");
-      } else {
-        resultMain.textContent = `${selected + 1}人目はウルフです！`;
         resultSub.textContent = "";
-        showAnswerRow.classList.remove("hidden");
+        answersBox.innerHTML = buildAnswerHtml();
+        answersBox.classList.remove("hidden");
+        retryRow.classList.remove("hidden");
+        showScreen(resultScreen);
+      } else {
+        announceMain.textContent = `${selected + 1}人目はウルフです！\n逆転チャンス！！`;
+        showScreen(announceScreen);
       }
-
-      showScreen(resultScreen);
-    }
-
-    function showCorrectAnswers() {
-      answersBox.textContent = buildAnswerLines();
-      answersBox.classList.remove("hidden");
-      retryRow.classList.remove("hidden");
-      showAnswerRow.classList.add("hidden");
     }
 
     function resetGame() {
@@ -780,7 +805,10 @@
 
       answersBox.classList.add("hidden");
       retryRow.classList.add("hidden");
-      showAnswerRow.classList.add("hidden");
+      answersBox.innerHTML = "";
+      resultMain.textContent = "";
+      resultSub.textContent = "";
+      announceMain.textContent = "";
       timerText.classList.remove("is-finish");
 
       showScreen(setupScreen);
@@ -793,7 +821,7 @@
     endDiscussionBtn.addEventListener("click", openVoteScreen);
     confirmYesBtn.addEventListener("click", showResult);
     confirmNoBtn.addEventListener("click", () => showScreen(voteScreen));
-    showAnswerBtn.addEventListener("click", showCorrectAnswers);
+    announceNextBtn.addEventListener("click", showWolfAnswersScreen);
     retryBtn.addEventListener("click", resetGame);
 
     initSelectors();
