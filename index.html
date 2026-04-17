@@ -42,6 +42,7 @@
       border-radius: 24px;
       box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
       padding: 28px;
+      position: relative;
     }
 
     .hidden {
@@ -52,12 +53,6 @@
       margin: 0 0 20px;
       text-align: center;
       font-size: clamp(28px, 4vw, 40px);
-    }
-
-    h2 {
-      margin: 0 0 20px;
-      text-align: center;
-      font-size: clamp(28px, 4vw, 42px);
     }
 
     .setup-grid {
@@ -114,12 +109,18 @@
       transform: scale(0.98);
     }
 
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     .btn-primary {
       background: var(--blue);
       color: white;
     }
 
-    .btn-primary:hover {
+    .btn-primary:hover:enabled {
       background: var(--blue-dark);
     }
 
@@ -128,7 +129,7 @@
       color: var(--blue-dark);
     }
 
-    .btn-sub:hover {
+    .btn-sub:hover:enabled {
       background: #dfe8ff;
     }
 
@@ -137,7 +138,7 @@
       color: white;
     }
 
-    .btn-green:hover {
+    .btn-green:hover:enabled {
       background: var(--green-dark);
     }
 
@@ -146,7 +147,7 @@
       color: var(--gray-text);
     }
 
-    .btn-gray:hover {
+    .btn-gray:hover:enabled {
       background: #dde5ef;
     }
 
@@ -183,14 +184,6 @@
 
     .center-box {
       text-align: center;
-    }
-
-    .info {
-      text-align: center;
-      font-size: 24px;
-      font-weight: 700;
-      color: #4b5563;
-      margin-bottom: 18px;
     }
 
     .word-card,
@@ -277,29 +270,22 @@
       white-space: pre-line;
     }
 
-    .final-text {
-      font-size: clamp(46px, 8vw, 84px);
-      font-weight: 900;
-      text-align: center;
-      color: var(--danger);
-      letter-spacing: 0.06em;
-      animation: popIn 0.45s ease;
-      margin-bottom: 24px;
+    .lock-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255, 255, 255, 0);
+      z-index: 999;
+      pointer-events: auto;
+      border-radius: 24px;
     }
 
-    .answer-line {
-      font-weight: 800;
-    }
-
-    @keyframes popIn {
-      0% {
-        transform: scale(0.8);
-        opacity: 0;
-      }
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .lock-message {
+      margin-top: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: #111111;
+      min-height: 30px;
+      font-variant-numeric: tabular-nums;
     }
 
     @keyframes pulse {
@@ -330,12 +316,17 @@
       .btn-small {
         font-size: 15px;
       }
+
+      .lock-message {
+        font-size: 16px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="app">
     <audio id="alarmAudio" preload="auto" src="timer.mp3"></audio>
+    <div id="lockOverlay" class="lock-overlay hidden"></div>
 
     <section id="setupScreen" class="screen">
       <h1>ワードウルフ進行画面</h1>
@@ -369,8 +360,8 @@
 
     <section id="turnScreen" class="screen hidden">
       <div class="center-box">
-        <div class="info" id="progressText"></div>
         <button class="btn btn-large" id="revealBtn"></button>
+        <div class="lock-message" id="revealLockMessage"></div>
       </div>
     </section>
 
@@ -382,6 +373,7 @@
         <div class="center-row">
           <button class="btn btn-sub" id="doneBtn">見終わりました</button>
         </div>
+        <div class="lock-message" id="doneLockMessage"></div>
       </div>
     </section>
 
@@ -467,7 +459,6 @@
     const showAnswerBtn = document.getElementById("showAnswerBtn");
     const retryBtn = document.getElementById("retryBtn");
 
-    const progressText = document.getElementById("progressText");
     const wordText = document.getElementById("wordText");
     const timerText = document.getElementById("timerText");
     const voteButtons = document.getElementById("voteButtons");
@@ -478,6 +469,9 @@
     const showAnswerRow = document.getElementById("showAnswerRow");
     const retryRow = document.getElementById("retryRow");
     const alarmAudio = document.getElementById("alarmAudio");
+    const lockOverlay = document.getElementById("lockOverlay");
+    const revealLockMessage = document.getElementById("revealLockMessage");
+    const doneLockMessage = document.getElementById("doneLockMessage");
 
     const state = {
       playerCount: 4,
@@ -488,7 +482,10 @@
       currentPlayerIndex: 0,
       selectedPlayerIndex: null,
       countdownSeconds: 180,
-      timerId: null
+      timerId: null,
+      lockTimeoutId: null,
+      lockIntervalId: null,
+      lockTarget: null
     };
 
     function fillSelect(select, start, end, selectedValue) {
@@ -574,6 +571,58 @@
       }
     }
 
+    function clearLockMessages() {
+      revealLockMessage.textContent = "";
+      doneLockMessage.textContent = "";
+    }
+
+    function clearLock() {
+      if (state.lockTimeoutId) {
+        clearTimeout(state.lockTimeoutId);
+        state.lockTimeoutId = null;
+      }
+      if (state.lockIntervalId) {
+        clearInterval(state.lockIntervalId);
+        state.lockIntervalId = null;
+      }
+      lockOverlay.classList.add("hidden");
+      revealBtn.disabled = false;
+      doneBtn.disabled = false;
+      state.lockTarget = null;
+      clearLockMessages();
+    }
+
+    function setLockMessage(target, secondsLeft) {
+      const text = `まだ押せません。${formatTime(secondsLeft)}`;
+      if (target === "reveal") {
+        revealLockMessage.textContent = text;
+      } else if (target === "done") {
+        doneLockMessage.textContent = text;
+      }
+    }
+
+    function lockScreenWithCount(disabledButton, targetName) {
+      clearLock();
+
+      let secondsLeft = 3;
+
+      state.lockTarget = targetName;
+      lockOverlay.classList.remove("hidden");
+      disabledButton.disabled = true;
+      setLockMessage(targetName, secondsLeft);
+
+      state.lockIntervalId = setInterval(() => {
+        secondsLeft -= 1;
+        if (secondsLeft >= 0) {
+          setLockMessage(targetName, secondsLeft);
+        }
+      }, 1000);
+
+      state.lockTimeoutId = setTimeout(() => {
+        clearLock();
+      }, 4000);
+    }
+
     function playAlarm() {
       try {
         alarmAudio.currentTime = 0;
@@ -585,6 +634,7 @@
 
     function startGame() {
       clearTimer();
+      clearLock();
       timerText.classList.remove("is-finish");
 
       state.playerCount = Number(playerCountEl.value);
@@ -609,7 +659,6 @@
 
     function updateTurnButton() {
       const playerNumber = state.currentPlayerIndex + 1;
-      progressText.textContent = `${playerNumber} / ${state.playerCount}`;
       revealBtn.textContent = `${playerNumber}人目ですか。`;
     }
 
@@ -619,6 +668,7 @@
       const isWolf = role === "wolf";
       wordText.textContent = isWolf ? theme.wolf : theme.citizen;
       showScreen(wordScreen);
+      lockScreenWithCount(doneBtn, "done");
     }
 
     function nextPlayer() {
@@ -631,6 +681,7 @@
 
       updateTurnButton();
       showScreen(turnScreen);
+      lockScreenWithCount(revealBtn, "reveal");
     }
 
     function startDiscussion() {
@@ -689,7 +740,7 @@
       return lines.join("\n");
     }
 
-    function showCitizenWinOrLoseResult() {
+    function showResult() {
       const selected = state.selectedPlayerIndex;
       const isWolf = state.roles[selected] === "wolf";
 
@@ -703,7 +754,7 @@
         resultSub.textContent = buildAnswerLines();
         retryRow.classList.remove("hidden");
       } else {
-        resultMain.textContent = `${selected + 1}人目はウルフです！\n逆転チャンス～`;
+        resultMain.textContent = `${selected + 1}人目はウルフです！`;
         resultSub.textContent = "";
         showAnswerRow.classList.remove("hidden");
       }
@@ -720,6 +771,8 @@
 
     function resetGame() {
       clearTimer();
+      clearLock();
+
       state.roles = [];
       state.currentPlayerIndex = 0;
       state.selectedPlayerIndex = null;
@@ -738,7 +791,7 @@
     revealBtn.addEventListener("click", revealWord);
     doneBtn.addEventListener("click", nextPlayer);
     endDiscussionBtn.addEventListener("click", openVoteScreen);
-    confirmYesBtn.addEventListener("click", showCitizenWinOrLoseResult);
+    confirmYesBtn.addEventListener("click", showResult);
     confirmNoBtn.addEventListener("click", () => showScreen(voteScreen));
     showAnswerBtn.addEventListener("click", showCorrectAnswers);
     retryBtn.addEventListener("click", resetGame);
