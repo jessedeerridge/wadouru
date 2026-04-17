@@ -13,6 +13,10 @@
       --card: #ffffff;
       --border: #d9e0ee;
       --danger: #e11d48;
+      --green: #16a34a;
+      --green-dark: #15803d;
+      --gray-btn: #eef2f7;
+      --gray-text: #475569;
     }
 
     * {
@@ -32,7 +36,7 @@
     }
 
     .app {
-      width: min(920px, 100%);
+      width: min(980px, 100%);
       background: var(--card);
       border: 1px solid var(--border);
       border-radius: 24px;
@@ -48,6 +52,12 @@
       margin: 0 0 20px;
       text-align: center;
       font-size: clamp(28px, 4vw, 40px);
+    }
+
+    h2 {
+      margin: 0 0 20px;
+      text-align: center;
+      font-size: clamp(28px, 4vw, 42px);
     }
 
     .setup-grid {
@@ -80,9 +90,13 @@
       background: white;
     }
 
-    .bottom-bar {
+    .bottom-bar,
+    .center-row,
+    .restart {
       display: flex;
       justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
       margin-top: 18px;
     }
 
@@ -112,11 +126,28 @@
     .btn-sub {
       background: #eef3ff;
       color: var(--blue-dark);
-      margin-top: 24px;
     }
 
     .btn-sub:hover {
       background: #dfe8ff;
+    }
+
+    .btn-green {
+      background: var(--green);
+      color: white;
+    }
+
+    .btn-green:hover {
+      background: var(--green-dark);
+    }
+
+    .btn-gray {
+      background: var(--gray-btn);
+      color: var(--gray-text);
+    }
+
+    .btn-gray:hover {
+      background: #dde5ef;
     }
 
     .btn-large {
@@ -131,8 +162,20 @@
       box-shadow: 0 14px 30px rgba(30, 99, 255, 0.25);
     }
 
+    .btn-player {
+      min-width: 180px;
+      font-size: 24px;
+      padding: 18px 22px;
+    }
+
+    .btn-small {
+      font-size: 16px;
+      padding: 10px 18px;
+      border-radius: 12px;
+    }
+
     .screen {
-      min-height: 540px;
+      min-height: 620px;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -150,9 +193,11 @@
       margin-bottom: 18px;
     }
 
-    .word-card {
+    .word-card,
+    .result-card,
+    .confirm-card {
       margin: 0 auto;
-      width: min(680px, 100%);
+      width: min(760px, 100%);
       border-radius: 28px;
       background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
       border: 2px solid #d6e1ff;
@@ -167,6 +212,71 @@
       letter-spacing: 0.04em;
     }
 
+    .discussion-title {
+      font-size: clamp(34px, 6vw, 64px);
+      font-weight: 900;
+      color: var(--danger);
+      text-align: center;
+      margin-bottom: 20px;
+      letter-spacing: 0.04em;
+    }
+
+    .timer {
+      text-align: center;
+      font-size: clamp(80px, 14vw, 160px);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--blue);
+      margin: 10px 0 24px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer.is-finish {
+      color: var(--danger);
+      animation: pulse 0.8s ease infinite;
+    }
+
+    .vote-title,
+    .confirm-title,
+    .result-title {
+      text-align: center;
+      font-size: clamp(30px, 5vw, 50px);
+      font-weight: 900;
+      margin-bottom: 24px;
+    }
+
+    .player-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      width: min(800px, 100%);
+      margin: 0 auto;
+    }
+
+    .result-main {
+      font-size: clamp(34px, 6vw, 58px);
+      font-weight: 900;
+      line-height: 1.5;
+      margin-bottom: 18px;
+      white-space: pre-line;
+    }
+
+    .result-sub {
+      font-size: 22px;
+      color: #475569;
+      line-height: 1.8;
+      white-space: pre-line;
+    }
+
+    .answers-box {
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 2px dashed #cbd5e1;
+      font-size: 22px;
+      line-height: 2;
+      white-space: pre-line;
+    }
+
     .final-text {
       font-size: clamp(46px, 8vw, 84px);
       font-weight: 900;
@@ -174,19 +284,11 @@
       color: var(--danger);
       letter-spacing: 0.06em;
       animation: popIn 0.45s ease;
+      margin-bottom: 24px;
     }
 
-    .final-sub {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 24px;
-      color: #475569;
-    }
-
-    .restart {
-      display: flex;
-      justify-content: center;
-      margin-top: 28px;
+    .answer-line {
+      font-weight: 800;
     }
 
     @keyframes popIn {
@@ -200,23 +302,41 @@
       }
     }
 
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.03);
+      }
+      100% {
+        transform: scale(1);
+      }
+    }
+
     @media (max-width: 640px) {
       .app {
         padding: 18px;
       }
 
       .screen {
-        min-height: 70vh;
+        min-height: 78vh;
       }
 
       .btn {
         font-size: 20px;
+      }
+
+      .btn-small {
+        font-size: 15px;
       }
     }
   </style>
 </head>
 <body>
   <div class="app">
+    <audio id="alarmAudio" preload="auto" src="timer.mp3"></audio>
+
     <section id="setupScreen" class="screen">
       <h1>ワードウルフ進行画面</h1>
 
@@ -234,6 +354,11 @@
         <div class="field">
           <label for="themeNumber">お題番号（1〜10）</label>
           <select id="themeNumber"></select>
+        </div>
+
+        <div class="field">
+          <label for="timeLimit">議論時間</label>
+          <select id="timeLimit"></select>
         </div>
       </div>
 
@@ -254,15 +379,54 @@
         <div class="word-card">
           <div class="word" id="wordText"></div>
         </div>
-        <button class="btn btn-sub" id="doneBtn">見終わりました</button>
+        <div class="center-row">
+          <button class="btn btn-sub" id="doneBtn">見終わりました</button>
+        </div>
       </div>
     </section>
 
-    <section id="finalScreen" class="screen hidden">
-      <div class="final-text">議論開始！</div>
-      <div class="final-sub" id="finalSummary"></div>
-      <div class="restart">
-        <button class="btn btn-primary" id="restartBtn">最初に戻る</button>
+    <section id="discussionScreen" class="screen hidden">
+      <div class="center-box">
+        <div class="discussion-title">議論してください</div>
+        <div class="timer" id="timerText">03:00</div>
+        <div class="center-row">
+          <button class="btn btn-gray btn-small" id="endDiscussionBtn">議論を終わる</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="voteScreen" class="screen hidden">
+      <div class="center-box">
+        <div class="vote-title">誰が最多票になった？</div>
+        <div class="player-grid" id="voteButtons"></div>
+      </div>
+    </section>
+
+    <section id="confirmScreen" class="screen hidden">
+      <div class="confirm-card">
+        <div class="confirm-title" id="confirmTitle"></div>
+        <div class="center-row">
+          <button class="btn btn-green" id="confirmYesBtn">はい</button>
+          <button class="btn btn-gray" id="confirmNoBtn">いいえ</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="resultScreen" class="screen hidden">
+      <div class="result-card">
+        <div class="result-title">結果</div>
+        <div class="result-main" id="resultMain"></div>
+        <div class="result-sub" id="resultSub"></div>
+
+        <div class="center-row hidden" id="showAnswerRow">
+          <button class="btn btn-primary" id="showAnswerBtn">正解を見る</button>
+        </div>
+
+        <div class="answers-box hidden" id="answersBox"></div>
+
+        <div class="restart hidden" id="retryRow">
+          <button class="btn btn-primary" id="retryBtn">もう一度</button>
+        </div>
       </div>
     </section>
   </div>
@@ -284,27 +448,47 @@
     const playerCountEl = document.getElementById("playerCount");
     const wolfCountEl = document.getElementById("wolfCount");
     const themeNumberEl = document.getElementById("themeNumber");
+    const timeLimitEl = document.getElementById("timeLimit");
 
     const setupScreen = document.getElementById("setupScreen");
     const turnScreen = document.getElementById("turnScreen");
     const wordScreen = document.getElementById("wordScreen");
-    const finalScreen = document.getElementById("finalScreen");
+    const discussionScreen = document.getElementById("discussionScreen");
+    const voteScreen = document.getElementById("voteScreen");
+    const confirmScreen = document.getElementById("confirmScreen");
+    const resultScreen = document.getElementById("resultScreen");
 
     const startBtn = document.getElementById("startBtn");
     const revealBtn = document.getElementById("revealBtn");
     const doneBtn = document.getElementById("doneBtn");
-    const restartBtn = document.getElementById("restartBtn");
+    const endDiscussionBtn = document.getElementById("endDiscussionBtn");
+    const confirmYesBtn = document.getElementById("confirmYesBtn");
+    const confirmNoBtn = document.getElementById("confirmNoBtn");
+    const showAnswerBtn = document.getElementById("showAnswerBtn");
+    const retryBtn = document.getElementById("retryBtn");
 
     const progressText = document.getElementById("progressText");
     const wordText = document.getElementById("wordText");
-    const finalSummary = document.getElementById("finalSummary");
+    const timerText = document.getElementById("timerText");
+    const voteButtons = document.getElementById("voteButtons");
+    const confirmTitle = document.getElementById("confirmTitle");
+    const resultMain = document.getElementById("resultMain");
+    const resultSub = document.getElementById("resultSub");
+    const answersBox = document.getElementById("answersBox");
+    const showAnswerRow = document.getElementById("showAnswerRow");
+    const retryRow = document.getElementById("retryRow");
+    const alarmAudio = document.getElementById("alarmAudio");
 
     const state = {
       playerCount: 4,
       wolfCount: 1,
       themeNumber: 1,
+      timeLimitMinutes: 3,
       roles: [],
-      currentPlayerIndex: 0
+      currentPlayerIndex: 0,
+      selectedPlayerIndex: null,
+      countdownSeconds: 180,
+      timerId: null
     };
 
     function fillSelect(select, start, end, selectedValue) {
@@ -318,17 +502,30 @@
       }
     }
 
+    function fillTimeSelect() {
+      timeLimitEl.innerHTML = "";
+      [2, 3, 4, 5, 6, 7].forEach(min => {
+        const option = document.createElement("option");
+        option.value = String(min);
+        option.textContent = `${min}分`;
+        if (min === 3) option.selected = true;
+        timeLimitEl.appendChild(option);
+      });
+    }
+
     function initSelectors() {
       fillSelect(playerCountEl, 3, 12, 4);
       fillSelect(wolfCountEl, 1, 3, 1);
       fillSelect(themeNumberEl, 1, 10, 1);
+      fillTimeSelect();
       updateWolfOptions();
     }
 
     function updateWolfOptions() {
       const players = Number(playerCountEl.value);
-      const currentWolf = Math.min(Number(wolfCountEl.value), Math.max(1, players - 1));
-      fillSelect(wolfCountEl, 1, Math.max(1, players - 1), currentWolf);
+      const maxWolf = Math.max(1, players - 1);
+      const currentWolf = Math.min(Number(wolfCountEl.value), maxWolf);
+      fillSelect(wolfCountEl, 1, maxWolf, currentWolf);
     }
 
     function shuffle(array) {
@@ -348,16 +545,64 @@
     }
 
     function showScreen(screen) {
-      [setupScreen, turnScreen, wordScreen, finalScreen].forEach(el => el.classList.add("hidden"));
+      [
+        setupScreen,
+        turnScreen,
+        wordScreen,
+        discussionScreen,
+        voteScreen,
+        confirmScreen,
+        resultScreen
+      ].forEach(el => el.classList.add("hidden"));
       screen.classList.remove("hidden");
     }
 
+    function formatTime(seconds) {
+      const min = Math.floor(seconds / 60);
+      const sec = seconds % 60;
+      return `${String(min).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
+    }
+
+    function updateTimerText() {
+      timerText.textContent = formatTime(state.countdownSeconds);
+    }
+
+    function clearTimer() {
+      if (state.timerId) {
+        clearInterval(state.timerId);
+        state.timerId = null;
+      }
+    }
+
+    function playAlarm() {
+      try {
+        alarmAudio.currentTime = 0;
+        alarmAudio.play();
+      } catch (e) {
+        console.log("音声を再生できませんでした。", e);
+      }
+    }
+
     function startGame() {
+      clearTimer();
+      timerText.classList.remove("is-finish");
+
       state.playerCount = Number(playerCountEl.value);
       state.wolfCount = Number(wolfCountEl.value);
       state.themeNumber = Number(themeNumberEl.value);
+      state.timeLimitMinutes = Number(timeLimitEl.value);
       state.roles = createRoles(state.playerCount, state.wolfCount);
       state.currentPlayerIndex = 0;
+      state.selectedPlayerIndex = null;
+      state.countdownSeconds = state.timeLimitMinutes * 60;
+
+      answersBox.classList.add("hidden");
+      retryRow.classList.add("hidden");
+      showAnswerRow.classList.add("hidden");
+      answersBox.innerHTML = "";
+      resultMain.textContent = "";
+      resultSub.textContent = "";
+
       updateTurnButton();
       showScreen(turnScreen);
     }
@@ -372,7 +617,6 @@
       const theme = themes[state.themeNumber];
       const role = state.roles[state.currentPlayerIndex];
       const isWolf = role === "wolf";
-
       wordText.textContent = isWolf ? theme.wolf : theme.citizen;
       showScreen(wordScreen);
     }
@@ -381,8 +625,7 @@
       state.currentPlayerIndex += 1;
 
       if (state.currentPlayerIndex >= state.playerCount) {
-        finalSummary.textContent = `全員がお題を確認しました。${state.playerCount}人で話し合ってください。`;
-        showScreen(finalScreen);
+        startDiscussion();
         return;
       }
 
@@ -390,9 +633,103 @@
       showScreen(turnScreen);
     }
 
+    function startDiscussion() {
+      state.countdownSeconds = state.timeLimitMinutes * 60;
+      timerText.classList.remove("is-finish");
+      updateTimerText();
+      showScreen(discussionScreen);
+
+      clearTimer();
+      state.timerId = setInterval(() => {
+        state.countdownSeconds -= 1;
+
+        if (state.countdownSeconds <= 0) {
+          state.countdownSeconds = 0;
+          updateTimerText();
+          timerText.classList.add("is-finish");
+          clearTimer();
+          playAlarm();
+          openVoteScreen();
+          return;
+        }
+
+        updateTimerText();
+      }, 1000);
+    }
+
+    function openVoteScreen() {
+      clearTimer();
+      renderVoteButtons();
+      showScreen(voteScreen);
+    }
+
+    function renderVoteButtons() {
+      voteButtons.innerHTML = "";
+      for (let i = 0; i < state.playerCount; i++) {
+        const button = document.createElement("button");
+        button.className = "btn btn-primary btn-player";
+        button.textContent = `${i + 1}人目`;
+        button.addEventListener("click", () => {
+          state.selectedPlayerIndex = i;
+          confirmTitle.textContent = `${i + 1}人目が最多票で合ってますか？`;
+          showScreen(confirmScreen);
+        });
+        voteButtons.appendChild(button);
+      }
+    }
+
+    function buildAnswerLines() {
+      const theme = themes[state.themeNumber];
+      const lines = [];
+      for (let i = 0; i < state.playerCount; i++) {
+        const role = state.roles[i];
+        const word = role === "wolf" ? theme.wolf : theme.citizen;
+        lines.push(`${i + 1}人目：${word}`);
+      }
+      return lines.join("\n");
+    }
+
+    function showCitizenWinOrLoseResult() {
+      const selected = state.selectedPlayerIndex;
+      const isWolf = state.roles[selected] === "wolf";
+
+      answersBox.classList.add("hidden");
+      retryRow.classList.add("hidden");
+      showAnswerRow.classList.add("hidden");
+      answersBox.textContent = "";
+
+      if (!isWolf) {
+        resultMain.textContent = "市民の負け～";
+        resultSub.textContent = buildAnswerLines();
+        retryRow.classList.remove("hidden");
+      } else {
+        resultMain.textContent = `${selected + 1}人目はウルフです！\n逆転チャンス～`;
+        resultSub.textContent = "";
+        showAnswerRow.classList.remove("hidden");
+      }
+
+      showScreen(resultScreen);
+    }
+
+    function showCorrectAnswers() {
+      answersBox.textContent = buildAnswerLines();
+      answersBox.classList.remove("hidden");
+      retryRow.classList.remove("hidden");
+      showAnswerRow.classList.add("hidden");
+    }
+
     function resetGame() {
+      clearTimer();
       state.roles = [];
       state.currentPlayerIndex = 0;
+      state.selectedPlayerIndex = null;
+      state.countdownSeconds = Number(timeLimitEl.value || 3) * 60;
+
+      answersBox.classList.add("hidden");
+      retryRow.classList.add("hidden");
+      showAnswerRow.classList.add("hidden");
+      timerText.classList.remove("is-finish");
+
       showScreen(setupScreen);
     }
 
@@ -400,7 +737,11 @@
     startBtn.addEventListener("click", startGame);
     revealBtn.addEventListener("click", revealWord);
     doneBtn.addEventListener("click", nextPlayer);
-    restartBtn.addEventListener("click", resetGame);
+    endDiscussionBtn.addEventListener("click", openVoteScreen);
+    confirmYesBtn.addEventListener("click", showCitizenWinOrLoseResult);
+    confirmNoBtn.addEventListener("click", () => showScreen(voteScreen));
+    showAnswerBtn.addEventListener("click", showCorrectAnswers);
+    retryBtn.addEventListener("click", resetGame);
 
     initSelectors();
   </script>
