@@ -80,28 +80,6 @@
       background: white;
     }
 
-    .theme-box {
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 16px;
-      margin-bottom: 24px;
-      background: #fbfcff;
-    }
-
-    .theme-box h2 {
-      margin: 0 0 12px;
-      font-size: 20px;
-    }
-
-    .theme-preview {
-      font-size: 18px;
-      line-height: 1.8;
-      background: white;
-      border: 1px dashed #cbd5e1;
-      border-radius: 14px;
-      padding: 14px 16px;
-    }
-
     .bottom-bar {
       display: flex;
       justify-content: center;
@@ -183,23 +161,10 @@
       text-align: center;
     }
 
-    .role-label {
-      font-size: 20px;
-      color: #64748b;
-      font-weight: 700;
-      margin-bottom: 16px;
-    }
-
     .word {
       font-size: clamp(42px, 7vw, 72px);
       font-weight: 900;
       letter-spacing: 0.04em;
-      margin-bottom: 10px;
-    }
-
-    .sub-word {
-      font-size: 20px;
-      color: #64748b;
     }
 
     .final-text {
@@ -272,11 +237,6 @@
         </div>
       </div>
 
-      <div class="theme-box">
-        <h2>お題プレビュー</h2>
-        <div class="theme-preview" id="themePreview"></div>
-      </div>
-
       <div class="bottom-bar">
         <button class="btn btn-primary" id="startBtn">スタート</button>
       </div>
@@ -291,11 +251,8 @@
 
     <section id="wordScreen" class="screen hidden">
       <div class="center-box">
-        <div class="info" id="wordPlayerText"></div>
         <div class="word-card">
-          <div class="role-label" id="roleLabel"></div>
           <div class="word" id="wordText"></div>
-          <div class="sub-word" id="wordSubText"></div>
         </div>
         <button class="btn btn-sub" id="doneBtn">見終わりました</button>
       </div>
@@ -327,7 +284,6 @@
     const playerCountEl = document.getElementById("playerCount");
     const wolfCountEl = document.getElementById("wolfCount");
     const themeNumberEl = document.getElementById("themeNumber");
-    const themePreviewEl = document.getElementById("themePreview");
 
     const setupScreen = document.getElementById("setupScreen");
     const turnScreen = document.getElementById("turnScreen");
@@ -340,10 +296,7 @@
     const restartBtn = document.getElementById("restartBtn");
 
     const progressText = document.getElementById("progressText");
-    const wordPlayerText = document.getElementById("wordPlayerText");
-    const roleLabel = document.getElementById("roleLabel");
     const wordText = document.getElementById("wordText");
-    const wordSubText = document.getElementById("wordSubText");
     const finalSummary = document.getElementById("finalSummary");
 
     const state = {
@@ -370,22 +323,12 @@
       fillSelect(wolfCountEl, 1, 3, 1);
       fillSelect(themeNumberEl, 1, 10, 1);
       updateWolfOptions();
-      updateThemePreview();
     }
 
     function updateWolfOptions() {
       const players = Number(playerCountEl.value);
       const currentWolf = Math.min(Number(wolfCountEl.value), Math.max(1, players - 1));
       fillSelect(wolfCountEl, 1, Math.max(1, players - 1), currentWolf);
-    }
-
-    function updateThemePreview() {
-      const themeNo = Number(themeNumberEl.value);
-      const theme = themes[themeNo];
-      themePreviewEl.innerHTML = `
-        市民：<strong>${theme.citizen}</strong><br>
-        ウルフ：<strong>${theme.wolf}</strong>
-      `;
     }
 
     function shuffle(array) {
@@ -430,11 +373,7 @@
       const role = state.roles[state.currentPlayerIndex];
       const isWolf = role === "wolf";
 
-      wordPlayerText.textContent = `${state.currentPlayerIndex + 1}人目のお題`;
-      roleLabel.textContent = isWolf ? "あなたはウルフです" : "あなたは市民です";
       wordText.textContent = isWolf ? theme.wolf : theme.citizen;
-      wordSubText.textContent = `お題番号 ${state.themeNumber}`;
-
       showScreen(wordScreen);
     }
 
@@ -458,7 +397,6 @@
     }
 
     playerCountEl.addEventListener("change", updateWolfOptions);
-    themeNumberEl.addEventListener("change", updateThemePreview);
     startBtn.addEventListener("click", startGame);
     revealBtn.addEventListener("click", revealWord);
     doneBtn.addEventListener("click", nextPlayer);
